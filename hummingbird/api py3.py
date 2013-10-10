@@ -23,6 +23,7 @@ class Api(object):
     __init__ takes your mashape key as it's only agrument
     """
     
+    auth_token = ''
     headers = {}
     api_url = 'https://hummingbirdv1.p.mashape.com'
     
@@ -54,7 +55,7 @@ class Api(object):
                 print (e.read())
                 raise AuthException(self.headers['X-Mashape-Authorization'])
     
-    def __query(self, path, method, params={}):
+    def __query(self, path, method, params={}, fav=False):
 
         if not params:
             params = {}
@@ -65,7 +66,10 @@ class Api(object):
         
         data = urllib.parse.urlencode(params).encode('utf-8')
         if method == "POST":
-            request = urllib.request.Request(self.api_url+path, data=data, headers=self.headers)
+            if fav:
+                request = urllib.request.Request('http://hummingbird.me'+path, data=data, headers=self.headers)
+            else:
+                request = urllib.request.Request(self.api_url+path, data=data, headers=self.headers)
             response = urllib.request.urlopen(request)
             return response.read().decode('utf-8')
         elif method == 'GET':
@@ -88,7 +92,10 @@ class Api(object):
         
         path = '/users/authenticate'
         params = {'email': email, 'password': password}
-        return self.__query(path, 'POST', params).strip('"')
+        self.user_key = self.__query(path, 'POST', params).strip('"')
+        global auth_token
+        auth_token = self.user_key
+        return auth_token
     
     def get_anime(self, anime_id):
         
@@ -157,3 +164,20 @@ class Api(object):
         path = '/libraries/' + anime_id
         
         return self.__query(path, 'POST', params)
+
+    def set_favourite(self, anime_id, user_key=None):
+
+        global auth_token
+       
+        if not user_key:
+            self.user_key == auth_token
+        else:
+            print ('Need to enter auth_token')
+
+        anime_id = anime_id.replace(" ", "-").lower()
+        path = '/anime/' + anime_id + '/toggle_favorite'
+        params={}
+        params['auth_token'] = self.user_key
+        params['_method'] = 'post'
+        
+        return  self.__query(path, 'POST', params, fav=True)
