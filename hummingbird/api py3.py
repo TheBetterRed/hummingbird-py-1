@@ -55,7 +55,7 @@ class Api(object):
                 print (e.read())
                 raise AuthException(self.headers['X-Mashape-Authorization'])
     
-    def __query(self, path, method, params={}, fav=False):
+    def __query(self, path, method, params={}):
 
         if not params:
             params = {}
@@ -66,9 +66,6 @@ class Api(object):
         
         data = urllib.parse.urlencode(params).encode('utf-8')
         if method == "POST":
-            if fav:
-                request = urllib.request.Request('http://hummingbird.me'+path, data=data, headers=self.headers)
-            else:
                 request = urllib.request.Request(self.api_url+path, data=data, headers=self.headers)
             response = urllib.request.urlopen(request)
             return response.read().decode('utf-8')
@@ -164,20 +161,3 @@ class Api(object):
         path = '/libraries/' + anime_id
         
         return self.__query(path, 'POST', params)
-
-    def set_favourite(self, anime_id, user_key=None):
-
-        global auth_token
-       
-        if not user_key:
-            self.user_key == auth_token
-        else:
-            print ('Need to enter auth_token')
-
-        anime_id = anime_id.replace(" ", "-").lower()
-        path = '/anime/' + anime_id + '/toggle_favorite'
-        params={}
-        params['auth_token'] = self.user_key
-        params['_method'] = 'post'
-        
-        return  self.__query(path, 'POST', params, fav=True)
