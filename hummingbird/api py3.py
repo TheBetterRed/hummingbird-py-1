@@ -2,6 +2,7 @@ import urllib.request, urllib.parse
 import json
 
 from hummingbird.models import *
+from pprint import pprint   
 
 class AuthException(Exception):
     
@@ -119,8 +120,13 @@ class Api(object):
 
         results = []
         for anime in response:
-            results.append(Anime(anime,self))
-        return results
+            results.append(anime)
+
+        if query_item:           
+            for i in range(len(response)):
+                pprint(response[i][query_item])
+        else:
+            return pprint(response)
 
     def get_library(self, status, user_id='me', page=None):
 
