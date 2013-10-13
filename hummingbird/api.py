@@ -106,7 +106,7 @@ class Api(object):
         path = '/anime/' + anime_id
         return Anime(self.__query(path, 'GET'), self)
         
-    def search_anime(self, *query):
+    def search_anime(self, *query, query_item):
         
         """
         Search hummingbird for anime.
@@ -120,6 +120,12 @@ class Api(object):
         results = []
         for anime in response:
             results.append(Anime(anime, self))
+            
+        if query_item:           
+            for i in range(len(response)):
+                pprint(response[i][query_item])
+        else:
+            return pprint(response)
         
         return results
     
